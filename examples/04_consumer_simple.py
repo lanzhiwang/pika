@@ -8,9 +8,29 @@ from pika.exchange_type import ExchangeType
 
 print('pika version: %s' % pika.__version__)
 
+# class pika.adapters.blocking_connection.BlockingConnection(parameters=None, _impl_class=None)
+# class pika.connection.ConnectionParameters(
+#     host=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     port=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     virtual_host=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     credentials=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     channel_max=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     frame_max=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     heartbeat=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     ssl_options=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     connection_attempts=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     retry_delay=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     socket_timeout=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     stack_timeout=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     locale=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     blocked_connection_timeout=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     client_properties=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     tcp_options=<class 'pika.connection.ConnectionParameters._DEFAULT'>,
+#     **kwargs)
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='localhost'))
 
+# channel(channel_number=None)
 main_channel = connection.channel()
 consumer_channel = connection.channel()
 bind_channel = connection.channel()
@@ -19,6 +39,7 @@ main_channel.exchange_declare(exchange='com.micex.sten', exchange_type=ExchangeT
 main_channel.exchange_declare(
     exchange='com.micex.lasttrades', exchange_type=ExchangeType.direct)
 
+# queue_declare(queue, passive=False, durable=False, exclusive=False, auto_delete=False, arguments=None)
 queue = main_channel.queue_declare('', exclusive=True).method.queue
 queue_tickers = main_channel.queue_declare('', exclusive=True).method.queue
 
@@ -29,7 +50,7 @@ main_channel.queue_bind(
 def hello():
     print('Hello world')
 
-
+# call_later(delay, callback)
 connection.call_later(5, hello)
 
 
@@ -55,6 +76,7 @@ logging.basicConfig(level=logging.INFO)
 # Note: consuming with automatic acknowledgements has its risks
 #       and used here for simplicity.
 #       See https://www.rabbitmq.com/confirms.html.
+# basic_consume(queue, on_message_callback, auto_ack=False, exclusive=False, consumer_tag=None, arguments=None)
 consumer_channel.basic_consume(queue, callback, auto_ack=True)
 
 try:
